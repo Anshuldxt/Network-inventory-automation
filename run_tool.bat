@@ -1,14 +1,10 @@
 @echo off
-setlocal
-where python >nul 2>nul
-if %errorlevel%==0 (
-  python huawei_site_search_tool.py
-  exit /b %errorlevel%
+cd /d "%~dp0"
+where python >nul 2>&1
+if errorlevel 1 (
+  echo Python 3.10 or newer is required.
+  pause
+  exit /b 1
 )
-where python3 >nul 2>nul
-if %errorlevel%==0 (
-  python3 huawei_site_search_tool.py
-  exit /b %errorlevel%
-)
-echo Python 3.10+ was not found. Install Python and add it to PATH.
-pause
+python -m pip install -r requirements.txt
+python multivendor_app.py

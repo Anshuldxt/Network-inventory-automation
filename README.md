@@ -1,61 +1,61 @@
-# Multi-Vendor Site Search — Phase 2 Auto-Sync Build
+# Multi-Vendor Network Inventory — Windows Application
 
-This build keeps Huawei, ZTE and Ericsson data in vendor/report-specific tabs and adds daily Outlook attachment synchronization.
+This is a buildable Windows desktop application for Huawei, Ericsson and ZTE reports.
 
-## Run the GUI
+## Features
+
+- Separate vendor/report tabs through the common search result navigator
+- Global search across all imported reports
+- Matching report tab and count shown after every search
+- CSV, XLSX and ZIP import
+- Per-user Input folder selection; no hard-coded Windows username
+- SQLite local database and background import/search
+- OneDrive/SharePoint-synced folder can be selected with **Input Folder**
+- Windows EXE build script
+
+## Run on a Windows laptop
+
+Install Python 3.10+ once, then double-click `run_tool.bat`.
+
+Or in PowerShell:
 
 ```powershell
 python -m pip install -r requirements.txt
-python huawei_site_search_tool.py
+python multivendor_app.py
 ```
 
-The GUI now has **Sync Now**. It reads matching attachments from the Outlook profile, saves them into the configured OneDrive/SharePoint-synced `Input` folder, and imports them into the local SQLite database.
+## Build a standalone EXE
 
-## Daily schedule
-
-The default schedule is **daily at 10:00 local time** (the user's machine is expected to be on India time / IST).
-
-1. Confirm `auto_sync_config.json`.
-2. Run `install_auto_sync_task.bat` once.
-3. Test immediately with `run_sync_now.bat` or `Start-ScheduledTask -TaskName MultiVendorSiteSearch-DailySync`.
-
-The task runs as the currently logged-in Windows user and uses the already-configured Outlook profile and searches configured Outlook stores/folders. Leave `mailbox_name` blank to search all configured stores; set it to a shared-mailbox display name to scope it.
-
-## Current auto-sync filters
-
-Sender matching uses `ENABLE-NOREPLY` by default. Subject and attachment filters are:
-
-| Vendor | Subject contains | Attachment pattern |
-|---|---|---|
-| Huawei | `DTAC-OF-TH | RAN - True Huawei Daily Cell NE Status |` | `Report.zip` |
-| Ericsson | `TRUE_BO_RAN_ERICSSON_ENABLE_Daily_Network_Dump_Audit` | `*_Execution_Report.zip` |
-| Ericsson | `TRUE | Network Cell Audit - Ericsson |` | `Network Cell Status Reports_*.zip` |
-| ZTE | `TRUE_BO_RAN_ZTE_Enable_Daily_NE_inventory_report` | `HARDWARE_SOFTWARE.zip` |
-| ZTE | `TRUE_BO_RAN_ZTE_Enable_Daily_Cell_report` | `CELL_DUMP.zip` |
-
-Edit `auto_sync_config.json` if sender, subject, filename, mailbox, or folder changes. The path is currently configured as:
+On Windows, double-click `build_exe.bat`. The output is:
 
 ```text
-C:\Users\eansdix\OneDrive - Ericsson\Daily Work\2026\Sep\gleaninvtool\Input
+dist\MultiVendorNetworkInventory.exe
 ```
 
-## Duplicate handling
+The target laptop does not need Python after the EXE is built.
 
-`auto_sync_manifest.json` stores processed Outlook message/attachment keys. New daily messages replace the stable attachment filename in the Input folder using an atomic save, then import the latest data. Re-running the same message skips it. If the database is deleted, use the GUI folder/ZIP import to rebuild it, or clear the manifest if you want to force a sync re-import.
+## First use
 
-## Existing import behavior
+1. Open the app.
+2. Click **Input Folder** and choose the user's OneDrive/SharePoint-synced Input folder.
+3. Click **Import Folder** or **Import ZIP**.
+4. Wait for the import status to complete.
+5. Enter a site/NE/IP/cell value in **Global search**.
+6. The left panel shows only matching report tabs and counts; click a tab to view rows.
+7. Use **Export Search** to save the combined results.
 
-- ZIP, folder and individual CSV/XLSX/XLSM imports remain supported.
-- Huawei tabs are unchanged.
-- ZTE tabs remain `ZTE - NE`, `ZTE - 2G Cell`, `ZTE - 3G Cell`, `ZTE - 4G Cell`, `ZTE - 5G Cell`.
-- Ericsson `NetworkDumpAuditReport_*.xlsx` imports only `Network Dump Audit`, `2G`, and `TCU`; `TERMPOINT_DATA` is ignored.
-- Ericsson `Network Cell Status Output_*.xlsx` imports every sheet.
-- Power BI is not included in this phase.
+## Classification rules
 
-## Windows requirement
+- Huawei CSV reports are classified by their filenames (`Report_Ne`, GSM, UMTS, LTE, NR, DEV/IP, VLAN, S1).
+- ZTE workbooks are classified by filename and sheet name. ZTE `GSM`, `UMTS`, `LTE_*`, `NR`, `NodeData` and `IP` are supported.
+- Ericsson `NetworkDumpAuditReport` imports only `Network Dump Audit`, `2G`, and `TCU`; `TERMPOINT_DATA` is ignored.
+- Ericsson `Network Cell Status Output` imports `UtranCell`, `EUtranCellFDD`, `EUtranCellTDD`, and `NRCellDU`.
+- ZIP archives are read without executing members; nested ZIPs are not unpacked.
 
-Automatic mailbox retrieval requires Microsoft Outlook desktop configured with the shared mailbox and `pywin32`. The GUI/import/search layer can still be used without Outlook sync.
+For a clean rebuild, close the app and delete `inventory.sqlite3`, then import again.
 
-## Scheduler fix
+## Sharing with another team member
 
-The installer uses Windows Task Scheduler logon type `Interactive`, which is the valid value for a task that runs in the logged-in user session.
+Copy the folder to the other Windows laptop. The user selects their own Input folder once; the app stores it in `app_config.json`. Outlook sync uses the logged-in user's Outlook profile and shared-mailbox permissions. Python is only needed to run/build the source package; after `build_exe.bat`, use `dist\MultiVendorNetworkInventory.exe` as the standalone application.
+
+The UI opens dedicated tabs for every supported report. After a search, the left `Matching reports` panel lists only tabs with matches; selecting one activates that report tab. Both CSV and Excel export buttons are available.
