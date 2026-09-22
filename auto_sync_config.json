@@ -1,0 +1,56 @@
+{
+  "input_folder": "C:\\Users\\eansdix\\OneDrive - Ericsson\\Daily Work\\2026\\Sep\\gleaninvtool\\Input",
+  "mailbox_name": "",
+  "lookback_days": 3,
+  "max_items_per_folder": 500,
+  "sender_patterns": [
+    "ENABLE-NOREPLY"
+  ],
+  "rules": [
+    {
+      "vendor": "Huawei",
+      "subject_contains": [
+        "DTAC-OF-TH | RAN - True Huawei Daily Cell NE Status |"
+      ],
+      "attachment_patterns": [
+        "Report.zip"
+      ]
+    },
+    {
+      "vendor": "Ericsson",
+      "subject_contains": [
+        "TRUE_BO_RAN_ERICSSON_ENABLE_Daily_Network_Dump_Audit"
+      ],
+      "attachment_patterns": [
+        "*_Execution_Report.zip"
+      ]
+    },
+    {
+      "vendor": "Ericsson",
+      "subject_contains": [
+        "TRUE | Network Cell Audit - Ericsson |"
+      ],
+      "attachment_patterns": [
+        "Network Cell Status Reports_*.zip"
+      ]
+    },
+    {
+      "vendor": "ZTE",
+      "subject_contains": [
+        "TRUE_BO_RAN_ZTE_Enable_Daily_NE_inventory_report"
+      ],
+      "attachment_patterns": [
+        "HARDWARE_SOFTWARE.zip"
+      ]
+    },
+    {
+      "vendor": "ZTE",
+      "subject_contains": [
+        "TRUE_BO_RAN_ZTE_Enable_Daily_Cell_report"
+      ],
+      "attachment_patterns": [
+        "CELL_DUMP.zip"
+      ]
+    }
+  ]
+}
